@@ -1,6 +1,6 @@
-#ParallESP Parallel Port Emulator#
+# ParallESP Parallel Port Emulator #
 
-##Emulation of Parallel Printers using an ESP32##
+## Emulation of Parallel Printers using an ESP32 ##
 The goals of the ParallESP project are as follows:
 1. Full emulation of a Parallel Printer
 2. The ability to either save .ps files on an SD card, or:
@@ -11,7 +11,7 @@ Currently, the project allows for the captured data to be printed out over seria
 
 ---
 
-##Building ParallESP##
+## Building ParallESP ##
 In order to build ParallESP, you need to have the ESP-IDF installed, available from here: https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html 
 
 With the IDF installed, change into the directory you'd like to clone to, and run the following commands:
@@ -26,7 +26,7 @@ ParallESP is now installed on your ESP32.  To access the console:
 
 ---
 
-##Wiring##
+## Wiring ##
 
 Due to the fact that standard PC Parallel Ports use 5V logic levels, and the ESP32 is not 5V tolerant, level shifting is required for the following signals:
 
@@ -48,7 +48,7 @@ In the future, more of the control signals, such as Error, will be implemented f
 
 ---
 
-##Project Status##
+## Project Status ##
 
 Status of the project goals, in no particular order:
 
