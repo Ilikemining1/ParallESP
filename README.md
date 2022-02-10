@@ -15,8 +15,8 @@ Currently, the project allows for the captured data to be printed out over seria
 In order to build ParallESP, you need to have the ESP-IDF installed, available from here: https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html 
 
 With the IDF installed, change into the directory you'd like to clone to, and run the following commands:
-`git clone https://github.com/Ilikemining1/ParallESP.git
-cd ParallESP`
+`git clone https://github.com/Ilikemining1/ParallESP.git`
+`cd ParallESP`
 
 Then, with the ESP32 plugged in, run:
 `idf.py flash`
