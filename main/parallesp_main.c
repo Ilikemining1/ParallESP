@@ -10,12 +10,15 @@
 #include "driver/gpio.h"
 #include "driver/gptimer.h"
 #include "soc/gpio_reg.h"
+#include "esp_log.h"
 
 #define ESP_INTR_FLAG_DEFAULT 0
 
 QueueHandle_t ioQueue;
 QueueHandle_t parallelByteQueue;
 gptimer_handle_t handshakeTimer;
+
+static const char *appName = "ParallESP";
 
 static void IRAM_ATTR getParallelByteISR(void) {  // ISR to grab byte from GPIO
 	REG_SET_BIT(GPIO_OUT1_W1TS_REG, BIT1);  // Set BUSY High
@@ -40,7 +43,7 @@ static esp_err_t configureIO(void) {
 	   IO for use.  GPIO Use is as follows: /STROBE (4), D0-D7 (18, 19, 21, 22, 23, 25, 26, 27), /ACK (32),
 	   and BUSY (33). */
 	
-	printf("Configuring interrupt:\n");
+	ESP_LOGI(appName, "Configuring interrupt:");
 	gpio_config_t intConfig = {
 		.intr_type = GPIO_INTR_NEGEDGE,
 		.pin_bit_mask = BIT4,
@@ -61,7 +64,7 @@ static esp_err_t configureIO(void) {
 		return ioConfigErr;
 	}
 
-	printf("Configuring outputs:\n");
+	ESP_LOGI(appName, "Configuring outputs:");
 	gpio_config_t outConfig = {
 		.intr_type = GPIO_INTR_DISABLE,
 		.mode = GPIO_MODE_OUTPUT,
@@ -74,7 +77,7 @@ static esp_err_t configureIO(void) {
 		return ioConfigErr;
 	}
 
-	printf("Configuring inputs:\n");
+	ESP_LOGI(appName, "Configuring inputs:");
 	gpio_config_t inConfig = {
 		.intr_type = GPIO_INTR_DISABLE,
 		.mode = GPIO_MODE_INPUT,
@@ -130,8 +133,7 @@ static void outputData(void) { // If there is data to send, task will write it t
 }
 
 void app_main(void) {
-	printf("ParallESP Parallel Printer Emulator\n"); // Do initialization stuffs.  Configure IO and Timer:
-	printf("Initializing...\n");
+	ESP_LOGI(appName, "ParallESP Parallel Printer Emulator"); // Do initialization stuffs.  Configure IO and Timer:
 	
 	ESP_ERROR_CHECK(configureIO());
 	configureTimer();
@@ -141,8 +143,8 @@ void app_main(void) {
 	
 	if ((ioQueue == NULL) || (parallelByteQueue == NULL)) {
 		printf("Failed to initialize queue(s)!\n");
-		printf("ESP Restarting!\n");
-		esp_restart();
+		ESP_LOGI(appName, "Failed to initialize queue(s)!");
+		abort();
 	}
 	
 	xTaskCreate(processIoToData, "Process IO Data to Chars", 4096, NULL, tskIDLE_PRIORITY, NULL);  // Start data processing tasks.
