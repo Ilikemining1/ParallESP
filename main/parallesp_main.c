@@ -32,7 +32,8 @@ static void IRAM_ATTR completeHandshake(void) {
 	REG_SET_BIT(GPIO_OUT1_W1TC_REG, BIT1);
 }
 
-static void configureIO(void) { 
+static esp_err_t configureIO(void) {
+	esp_err_t ioConfigErr;
 	/* The ParallESP requires a minimum of 11 GPIOs.  9 inputs (Data Bits 0-7 and Strobe),
 	   and 2 outputs (/ACK and BUSY).  Additional data lines (Auto Selection, OOP Emulation, Error State)
 	   and bidirectional parallel to be implemented at a later date.  The following function initializes
@@ -47,9 +48,18 @@ static void configureIO(void) {
 		.pull_down_en = 0,
 		.pull_up_en = 0,
 	};
-	gpio_config(&intConfig);
+	ioConfigErr = gpio_config(&intConfig);
+	if (ioConfigErr != ESP_OK) {
+		return ioConfigErr;
+	}
 	gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
+	if (ioConfigErr != ESP_OK) {
+		return ioConfigErr;
+	}
 	gpio_isr_handler_add(4, getParallelByteISR, NULL);
+	if (ioConfigErr != ESP_OK) {
+		return ioConfigErr;
+	}
 
 	printf("Configuring outputs:\n");
 	gpio_config_t outConfig = {
@@ -60,6 +70,9 @@ static void configureIO(void) {
 		.pull_up_en = 0,
 	};
 	gpio_config(&outConfig);
+	if (ioConfigErr != ESP_OK) {
+		return ioConfigErr;
+	}
 
 	printf("Configuring inputs:\n");
 	gpio_config_t inConfig = {
@@ -70,9 +83,14 @@ static void configureIO(void) {
 		.pull_up_en = 0,
 	};
 	gpio_config(&inConfig);
+	if (ioConfigErr != ESP_OK) {
+		return ioConfigErr;
+	}
 
 	REG_SET_BIT(GPIO_OUT1_W1TS_REG, BIT0);  // Set initial state of flow control lines.  BUSY low, /ACK high.
 	REG_SET_BIT(GPIO_OUT1_W1TC_REG, BIT1);
+
+	return ESP_OK;
 }
 
 static void configureTimer(void) {  // Initialize One-Shot Timer Parameters
@@ -115,7 +133,7 @@ void app_main(void) {
 	printf("ParallESP Parallel Printer Emulator\n"); // Do initialization stuffs.  Configure IO and Timer:
 	printf("Initializing...\n");
 	
-	configureIO();
+	ESP_ERROR_CHECK(configureIO());
 	configureTimer();
 
 	ioQueue = xQueueCreate(1000, sizeof(uint32_t));  // Set up Queues.
