@@ -1,6 +1,5 @@
-# ParallESP Parallel Port Emulator #
+# ParallESP Parallel Printer Emulator #
 
-## Emulation of Parallel Printers using an ESP32 ##
 The goals of the ParallESP project are as follows:
 1. Full emulation of a Parallel Printer
 2. The ability to either save .ps files on an SD card, or:
